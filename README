@@ -1,0 +1,5 @@
+Fessgram
+Social media app for posting fesses. Built using next.js on the frontend and express.js and postgres backend along with passport.js for google authentication
+
+Running Locally 
+https://docs.google.com/document/d/156v9ttQCxwHBglhqqyQTs9rKCTSLvNr6_7TD1xzlWeU/edit?usp=sharing

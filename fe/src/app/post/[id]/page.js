@@ -3,6 +3,7 @@ import React, {use, useEffect, useState} from 'react';
 import Image from "next/image";
 import {format} from "date-fns";
 import {FaComment, FaHeart} from "react-icons/fa6";
+import {motion} from "framer-motion";
 
 function Page(props) {
     const [user, setUser] = useState(null);
@@ -24,6 +25,7 @@ function Page(props) {
             const res = await fetch(`http://localhost:3001/posts/${id}`);
             const data = await res.json();
             setPost(data);
+            setLike_count(data.like_count);
         } catch (error) {
             console.error("Error fetching post:", error);
             setPost(null);
@@ -74,7 +76,7 @@ function Page(props) {
     };
 
     const deletePost = async () => {
-        if (!window.confirm("Are you sure you want to delete this post?")) return;
+        if (!window.confirm("delete? frfr?")) return;
 
         try {
             const response = await fetch(`http://localhost:3001/posts/${post.post_id}`, {
@@ -117,6 +119,32 @@ function Page(props) {
         }
     }, [user, post]);
 
+    const [like_count, setLike_count] = useState(post?.like_count || 0);
+    const comment_count = 0;
+
+    const likePost = async () => {
+        try{
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/likes`,{
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    post_id: post.post_id,
+                })
+            })
+            if (!res.ok) {
+                throw new Error("Failed to fetch likes");
+            }
+            const data = await res.json();
+            setLike_count(data.like_count);
+
+        } catch(error){
+            console.log(error);
+        }
+    }
+
     return (
         <>
             <div className="flex justify-center font-medium">
@@ -146,8 +174,16 @@ function Page(props) {
                             </div>
                             <div className="flex justify-between mx-18 mt-4 text-gray-500">
                                 <div className="flex gap-8 text-xl">
-                                    <div className="flex items-center gap-1.5"><FaHeart/> 0</div>
-                                    <div className="flex items-center gap-1.5"><FaComment/> 0</div>
+                                    <motion.div className="flex items-center gap-3 font-mono"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    likePost();
+                                                }}
+                                                whileHover={{scale: 1.15}}
+                                                whileTap={{scale: 1.15, translateY: -6}}
+                                    ><FaHeart size={26}/> {like_count}</motion.div>
+                                    <motion.div className="flex items-center gap-3 font-mono"
+                                    ><FaComment size={26}/> {comment_count}</motion.div>
                                 </div>
                                 <div>{format(new Date(post.created_at), "d MMMM yyyy")}</div>
                             </div>

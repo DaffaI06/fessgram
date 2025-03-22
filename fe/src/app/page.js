@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FaHeart, FaComment } from "react-icons/fa6";
 import { format } from "date-fns";
 import Link from "next/link";
+import Post from "@/app/components/post";
 
 export default function Home() {
     const [user, setUser] = useState(null);
@@ -28,7 +29,7 @@ export default function Home() {
         }
 
         try{
-            const response = await fetch("http://localhost:3001/posts", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/posts`, {
                 method: "POST",
                 body: JSON.stringify({post_text : newPostText}),
                 headers: {
@@ -52,7 +53,7 @@ export default function Home() {
         if (loading) return;
         setLoading(true);
         try {
-            const res = await fetch(`http://localhost:3001/posts?offset=${offset}`);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/posts?offset=${offset}`);
             const data = await res.json();
             if (data.length > 0) {
                 setPosts(prevPosts => [...prevPosts, ...data]);
@@ -62,11 +63,12 @@ export default function Home() {
             console.error("Error fetching posts:", error);
         }
         setLoading(false);
+
     };
 
     useEffect(() => {
         fetchPosts();
-
+        console.log(posts);
     }, []);
 
     // infinite scroll
@@ -103,22 +105,23 @@ export default function Home() {
 
         <div className="flex justify-center font-medium">
 
-            <div className="h-[100vh] w-full md:w-[80vw] lg:w-[60vw] xl:w-[50vw] bg-yellow-200">
+            <div className="w-full md:w-[80vw] lg:w-[60vw] xl:w-[50vw]">
                 {user ? (
-                    <form className="w-full bg-black flex flex-col p-5 border-x border-b border-gray-600" onSubmit={submitNewPost}>
+                    <form className="w-full bg-black flex flex-col p-5 pb-4 sm:pb-5 border-x border-b border-gray-600" onSubmit={submitNewPost}>
                         <div className="w-full flex gap-5 items-center">
-                            <div>
-                                <Image src={user.avatar_url || "/defaultpfp.png"} className="rounded-full" alt="" width={56} height={56} />
+                            <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 " >
+                                <Image src={user.avatar_url || "/defaultpfp.png"} className="rounded-full" alt="" fill/>
                             </div>
                             <div>
-                                <input type="text" placeholder={`Welcome, ${user.name}! confess here...`} className="outline-0 placeholder-gray-400 text-xl text-white"
-                                           value={newPostText} onChange={(e) => setNewPostText(e.target.value)}></input>
+                                <textarea placeholder={`Welcome, ${user.name}! confess here...`}
+                                       className="outline-0 placeholder-gray-400 text-md sm:text-xl text-white w-[90%] w-full"
+                                       value={newPostText} onChange={(e) => setNewPostText(e.target.value)}></textarea>
                             </div>
                         </div>
-                        <div className="flex justify-between px-5 pt-6">
+                        <div className="flex justify-between pt-4 sm:px-5 sm:pt-6">
                             {/* havent setup value or controlled state*/}
                             <div className="flex items-center gap-1">
-                                <div className="text-gray-500">Post for </div>
+                            <div className="text-gray-500 text-sm sm:text-xl">Post for </div>
                                 {/*<select name="community" className="text-white border-1 border-gray-600 px-3 py-1 rounded-4xl w-28">*/}
                                 {/*    <option value="null">everyone</option>*/}
                                 {/*    {communities.map((item, index) => (*/}
@@ -128,7 +131,7 @@ export default function Home() {
                             </div>
 
                             <button type="submit"
-                                    className="bg-white flex w-max px-8 py-1.5 rounded-4xl text-lg">Post
+                                    className="bg-white flex w-max px-6 py-1 sm:px-8  sm:py-1.5 rounded-4xl text-sm sm:text-lg">Post
                             </button>
                         </div>
                     </form>
@@ -136,28 +139,8 @@ export default function Home() {
                     <div className="w-full bg-black text-white text-center p-4 border-x border-b border-gray-600">You need to log in to post</div>
                 )}
                 { posts ? (posts.map((post, index) => (
-                    <Link href={`/post/${post.post_id}`} className="w-full bg-black flex flex-col px-5 py-3 text-white border-x border-b border-gray-600" key={index}>
-                        <div className="w-full flex gap-5 items-center">
-                            <div>
-                                <Image src={post.avatar_url || "/defaultpfp.png"} className="rounded-full" alt=""
-                                       width={48} height={48}/>
-                            </div>
-                            <div className="text-xl gap-2">
-                                <div className="flex gap-3 items-baseline">
-                                    <div className="font-extrabold">{post.name}</div>
-                                    <div className="text-sm text-gray-500">{format(new Date(post.created_at), "hh:mm")}</div>
-                                </div>
-                                <div>{post.post_text}</div>
-                            </div>
-                        </div>
-                        <div className="flex justify-between mx-18 mt-4 text-gray-500">
-                            <div className="flex gap-8 text-xl">
-                                <div className="flex items-center gap-1.5"><FaHeart/> {post.like_count}</div>
-                                <div className="flex items-center gap-1.5"><FaComment /> {post.comment_count}</div>
-                            </div>
-                            <div>{format(new Date(post.created_at), "d MMMM yyyy")}</div>
-                        </div>
-                    </Link>
+                    <Post key={index} post_id={post.post_id} avatar_url={post.avatar_url} post_text={post.post_text} name={post.name} created_at={post.created_at}
+                          like_count={post.like_count} comment_count={post.comment_count} user={user}/>
                 ))) : ""}
             </div>
         </div>

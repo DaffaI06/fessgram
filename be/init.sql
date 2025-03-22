@@ -10,18 +10,11 @@ CREATE TABLE IF NOT EXISTS posts (
     created_at TIMESTAMPTZ DEFAULT now(),
     posted_by TEXT REFERENCES users(email) ON DELETE CASCADE,
     post_text TEXT,
-    post_id UUID PRIMARY KEY DEFAULT gen_random_uuid()
+    post_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    parent_id UUID REFERENCES posts(post_id) DEFAULT NULL
 );
 
 CREATE TABLE IF NOT EXISTS likes (
      liked_by TEXT REFERENCES users(email) ON DELETE CASCADE,
      post_id UUID REFERENCES posts(post_id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS comments (
-     created_at TIMESTAMPTZ DEFAULT now(),
-     post_id UUID REFERENCES posts(post_id) ON DELETE CASCADE,
-     commented_by TEXT REFERENCES users(email) ON DELETE CASCADE,
-     comment_text TEXT,
-     comment_id UUID PRIMARY KEY DEFAULT gen_random_uuid()
 );

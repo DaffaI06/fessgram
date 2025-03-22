@@ -66,9 +66,11 @@ router.get("/", async (req, res) => {
 
     try {
         const posts = await pool.query(
-            `SELECT posts.*, users.name, users.avatar_url 
+            `SELECT posts.*, users.name, users.avatar_url, COALESCE(temp.like_count, 0) as like_count
             FROM posts 
+--             WHERE posts.parent_id = NULL
             JOIN users ON posts.posted_by = users.email
+            LEFT JOIN (SELECT post_id, COUNT(*) as like_count FROM likes GROUP BY post_id) AS temp ON posts.post_id = temp.post_id 
             ORDER BY created_at DESC 
             LIMIT 10 OFFSET $1`,
             [offset]
@@ -84,10 +86,15 @@ router.get("/:post_id", async (req, res) => {
     const {post_id} = req.params;
     try {
         const posts = await pool.query(
-            `SELECT posts.*, users.name, users.avatar_url 
+            `SELECT posts.*, users.name, users.avatar_url, COALESCE(temp.like_count, 0) as like_count
             FROM posts 
             JOIN users ON posts.posted_by = users.email
-            WHERE post_id = $1`,
+            LEFT JOIN (
+                SELECT post_id, COUNT(*) AS like_count
+                FROM likes
+                WHERE post_id = $1
+                GROUP BY post_id) AS temp ON posts.post_id = temp.post_id
+             WHERE posts.post_id = $1`,
             [post_id]
         );
         res.json(posts.rows[0]);

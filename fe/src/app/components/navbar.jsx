@@ -22,13 +22,13 @@ function Navbar(props) {
     return (
         <>
             <div
-                className="w-full sticky top-0 bg-black text-white font-medium border-b border-gray-600 transition-all">
-                <div className="w-[65vw] mx-auto flex justify-between items-center p-6">
+                className="w-full sticky top-0 bg-black text-white font-medium border-b border-gray-600 transition-all z-10">
+                <div className="w-full md:w-[80vw] xl:w-[65vw] mx-auto flex justify-between items-center p-6">
                     <Link href="/" className="font-extrabold text-xl cursor-pointer">
                         <motion.div whileHover={{scale:1.1}} whileTap={{scale:0.9}}><span className="text-red-400">Fess</span>gram</motion.div>
 
                     </Link>
-                    <div className="flex gap-8">
+                    <div className="hidden sm:flex gap-8">
                         <Link href="/"><motion.div whileHover={{scale:1.1}} whileTap={{scale:0.9}}>Home</motion.div>
                         </Link>
                         <Link href="/"><motion.div whileHover={{scale:1.1}} whileTap={{scale:0.9}}>Community</motion.div>
@@ -38,7 +38,7 @@ function Navbar(props) {
                     </div>
                     {user ? (
                         <div
-                            className="cursor-pointer flex items-center gap-2 text-red-500 text-lg"
+                            className="cursor-pointer hidden sm:flex items-center gap-2 text-red-500 text-lg"
                             onClick={handleLogout}
                         >
                             <FaGoogle/>
@@ -47,7 +47,7 @@ function Navbar(props) {
                     ) : (
                         <a
                             href="http://localhost:3001/auth/google"
-                            className="cursor-pointer flex items-center gap-2 text-blue-500 text-xl"
+                            className="cursor-pointer hidden sm:flex items-center gap-2 text-blue-500 text-xl"
                         >
                             <FaGoogle/>
                             <div>Login</div>

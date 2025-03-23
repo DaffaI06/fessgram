@@ -11,7 +11,7 @@ const likesRoutes = require('./routes/likes');
 const app = express();
 app.use(express.json());
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"]
 }));
@@ -36,5 +36,5 @@ app.get("/", (req, res) => {
 })
 
 
-const port = 3001;
+const port = process.env.PORT;
 app.listen(port, () => {console.log(`Server running on port ${port}`)});

@@ -8,22 +8,22 @@ function Navbar(props) {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:3001/auth/me", { credentials: "include" })
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/me`, { credentials: "include" })
             .then((res) => res.json())
             .then((data) => setUser(data.email ? data : null))
             .catch(() => setUser(null));
     }, []);
 
     const handleLogout = async () => {
-        await fetch("http://localhost:3001/auth/logout", { credentials: "include" });
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`, { credentials: "include" });
         setUser(null);
         window.location.reload();
     };
     return (
         <>
             <div
-                className="w-full sticky top-0 bg-black text-white font-medium border-b border-gray-600 transition-all z-10">
-                <div className="w-full md:w-[80vw] xl:w-[65vw] mx-auto flex justify-between items-center p-6">
+                className="w-full sticky top-0 bg-black text-white font-medium border-b border-gray-700 transition-all z-10">
+                <div className="w-full md:w-[80vw] xl:w-[65vw] mx-auto flex sm:justify-between items-center p-6">
                     <Link href="/" className="font-extrabold text-xl cursor-pointer">
                         <motion.div whileHover={{scale:1.1}} whileTap={{scale:0.9}}><span className="text-red-400">Fess</span>gram</motion.div>
 
@@ -46,7 +46,7 @@ function Navbar(props) {
                         </div>
                     ) : (
                         <a
-                            href="http://localhost:3001/auth/google"
+                            href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`}
                             className="cursor-pointer hidden sm:flex items-center gap-2 text-blue-500 text-xl"
                         >
                             <FaGoogle/>

@@ -12,9 +12,8 @@ function Post(props) {
     const post_text = props.post_text || "";
     const name = props.name || "";
     const created_at = props.created_at || new Date();
-    //const like_count = props.like_count || " ";
     const [like_count, setLike_count] = useState(props.like_count || 0);
-    const comment_count = props.comment_count || " ";
+    const comment_count = props.comment_count || 0;
     const user = props.user || null;
 
     const likePost = async () => {
@@ -46,7 +45,7 @@ function Post(props) {
 
     return (
         <>
-            <Link href={`/post/${post_id}`} className="w-full bg-black flex flex-col px-5 py-3 text-white border-x border-b border-gray-600">
+            <Link href={`/post/${post_id}`} className="w-full bg-black flex flex-col px-5 py-3 text-white border-x border-b border-gray-800">
                 <div className="w-full flex gap-5 items-start sm:items-center">
                     <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 mt-1 sm:mt-0">
                         <Image src={avatar_url} className="rounded-full" alt="" fill/>
@@ -59,9 +58,9 @@ function Post(props) {
                         <div>{post_text}</div>
                     </div>
                 </div>
-                <div className="flex justify-between mx-auto gap-14 sm:gap-0 sm:ml-18 sm:mr-10 mt-3.5 sm:mt-4 text-gray-500 items-center">
+                <div className="flex justify-between mx-auto gap-10 sm:gap-0 sm:ml-18 sm:mr-10 mt-3.5 sm:mt-4 text-gray-500 items-center">
                     <div className="flex gap-10 sm:gap-8 text-lg">
-                        <motion.div className="flex items-center gap-2 sm:gap-3 font-mono"
+                        <motion.div className="flex items-center gap-2 sm:gap-3 font-mono cursor-pointer"
                              onClick={(e) => {
                                  e.preventDefault();
                                  likePost();
@@ -70,6 +69,8 @@ function Post(props) {
                                     whileTap={{scale:1.15, translateY:-6}}
                         ><FaHeart size="1.45em"/> {like_count}</motion.div>
                         <motion.div className="flex items-center gap-2 sm:gap-3 font-mono"
+                                    whileHover={{scale:1.15}}
+                                    whileTap={{scale:1.15, translateY:-6}}
                         ><FaComment size="1.45em"/> {comment_count}</motion.div>
                     </div>
                     <div className="text-sm sm:text-md">{format(new Date(created_at), "d MMMM yyyy")}</div>

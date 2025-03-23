@@ -1,5 +1,4 @@
 const express = require("express");
-const passport = require("passport");
 const pool = require('../db');
 const {ensureAuthenticated} = require("../middleware/middleware");
 const router = express.Router();
@@ -66,11 +65,25 @@ router.get("/", async (req, res) => {
 
     try {
         const posts = await pool.query(
-            `SELECT posts.*, users.name, users.avatar_url, COALESCE(temp.like_count, 0) as like_count
+            `SELECT 
+                posts.*, 
+                users.name, 
+                users.avatar_url, 
+                COALESCE(temp.like_count, 0) as like_count,
+                COALESCE(comment_temp.comment_count, 0) AS comment_count
             FROM posts 
---             WHERE posts.parent_id = NULL
             JOIN users ON posts.posted_by = users.email
-            LEFT JOIN (SELECT post_id, COUNT(*) as like_count FROM likes GROUP BY post_id) AS temp ON posts.post_id = temp.post_id 
+            LEFT JOIN (
+                SELECT post_id, 
+                       COUNT(*) as like_count FROM likes GROUP BY post_id
+            ) AS temp ON posts.post_id = temp.post_id
+            -- doesn't count nested comments, but who cares :D
+            LEFT JOIN (
+                SELECT parent_id, COUNT(*) AS comment_count
+                FROM posts
+                GROUP BY parent_id
+            ) AS comment_temp ON posts.post_id = comment_temp.parent_id
+            WHERE posts.parent_id IS NULL -- remove if error
             ORDER BY created_at DESC 
             LIMIT 10 OFFSET $1`,
             [offset]
@@ -85,23 +98,77 @@ router.get("/", async (req, res) => {
 router.get("/:post_id", async (req, res) => {
     const {post_id} = req.params;
     try {
-        const posts = await pool.query(
-            `SELECT posts.*, users.name, users.avatar_url, COALESCE(temp.like_count, 0) as like_count
+        const post = await pool.query(
+            `SELECT posts.*, 
+                    users.name, 
+                    users.avatar_url, 
+                    COALESCE(temp.like_count, 0) as like_count,
+                    COALESCE(comment_count, 0) as comment_count
             FROM posts 
             JOIN users ON posts.posted_by = users.email
             LEFT JOIN (
                 SELECT post_id, COUNT(*) AS like_count
                 FROM likes
                 WHERE post_id = $1
-                GROUP BY post_id) AS temp ON posts.post_id = temp.post_id
+                GROUP BY post_id
+            ) AS temp ON posts.post_id = temp.post_id
+            LEFT JOIN (
+                SELECT parent_id, COUNT(*) AS comment_count
+                FROM posts
+                WHERE parent_id IS NOT NULL
+                GROUP BY parent_id
+            ) AS comment_temp ON posts.post_id = comment_temp.parent_id
              WHERE posts.post_id = $1`,
             [post_id]
         );
-        res.json(posts.rows[0]);
+        const comments = await pool.query(
+            `SELECT posts.*, 
+                    users.name, 
+                    users.avatar_url, 
+                    COALESCE(temp.like_count, 0) as like_count,
+                    COALESCE(comment_temp.comment_count, 0) AS comment_count
+            FROM posts 
+            JOIN users ON posts.posted_by = users.email
+            LEFT JOIN (
+                SELECT post_id, 
+                       COUNT(*) as like_count 
+                FROM likes GROUP BY post_id
+            ) AS temp ON posts.post_id = temp.post_id
+            LEFT JOIN (
+                SELECT parent_id, COUNT(*) AS comment_count
+                FROM posts
+                GROUP BY parent_id
+            ) AS comment_temp ON posts.post_id = comment_temp.parent_id
+            WHERE posts.parent_id = $1
+            ORDER BY created_at DESC`,
+            [post_id]
+        )
+        // res.json(pos.rows[0]);
+        res.json({
+            post: post.rows[0],
+            comments: comments.rows
+        });
     } catch (err) {
         console.error("Error fetching posts:", err);
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+
+// post comment
+router.post("/:parent_id", ensureAuthenticated, async (req, res) => {
+    const {parent_id} = req.params;
+    const email = req.user.email;
+    const {post_text} = req.body;
+
+    try{
+        const newPost = await pool.query("INSERT INTO posts (posted_by, post_text, parent_id) VALUES ($1, $2, $3) RETURNING *", [email, post_text, parent_id]);
+        res.status(201).json({"message": "Post successfully", "post" : newPost});
+    } catch(error){
+        res.status(500)
+    }
+})
+
+
 
 module.exports = router;

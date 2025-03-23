@@ -1,16 +1,13 @@
 "use client";
 import React, {useEffect, useState} from "react";
 import Image from "next/image";
-import { FaHeart, FaComment } from "react-icons/fa6";
-import { format } from "date-fns";
-import Link from "next/link";
 import Post from "@/app/components/post";
 
 export default function Home() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        fetch("http://localhost:3001/auth/me", { credentials: "include" })
+        fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/me`, { credentials: "include" })
             .then((res) => res.json())
             .then((data) => {
                 setUser(data)
@@ -20,7 +17,7 @@ export default function Home() {
     }, []);
     const [newPostText, setNewPostText] = useState("");
 
-    const submitNewPost = async (e) => {
+    const submitPost = async (e) => {
         e.preventDefault();
 
         if(!newPostText.trim()){
@@ -107,7 +104,7 @@ export default function Home() {
 
             <div className="w-full md:w-[80vw] lg:w-[60vw] xl:w-[50vw]">
                 {user ? (
-                    <form className="w-full bg-black flex flex-col p-5 pb-4 sm:pb-5 border-x border-b border-gray-600" onSubmit={submitNewPost}>
+                    <form className="w-full bg-black flex flex-col p-5 pb-4 sm:pb-5 border-x border-b border-gray-600" onSubmit={submitPost}>
                         <div className="w-full flex gap-5 items-center">
                             <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 " >
                                 <Image src={user.avatar_url || "/defaultpfp.png"} className="rounded-full" alt="" fill/>

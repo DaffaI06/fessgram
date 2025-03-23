@@ -9,7 +9,7 @@ router.get("/google", passport.authenticate("google", { scope: ["profile", "emai
 // google callback route
 router.get(
     "/google/callback",
-    passport.authenticate("google", { failureRedirect: "http://localhost:3000/login-failed" }),
+    passport.authenticate("google", { failureRedirect: `${process.env.FRONTEND_URL}/login-failed` }),
     async (req, res) => {
         const { email, name, google_id, avatar_url } = req.user;
 
@@ -23,7 +23,7 @@ router.get(
                 );
             }
 
-            res.redirect("http://localhost:3000");
+            res.redirect(process.env.FRONTEND_URL);
         } catch (error) {
             console.error("Error saving user:", error);
             res.status(500).json({ error: "Internal server error" });

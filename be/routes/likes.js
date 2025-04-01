@@ -10,8 +10,7 @@ router.post("/", ensureAuthenticated,async (req, res) => {
 
     try {
         const likeCheck = await pool.query(
-            "SELECT * FROM likes WHERE liked_by = $1 AND post_id = $2",
-            [liked_by, post_id]
+            "SELECT * FROM likes WHERE liked_by = $1 AND post_id = $2", [liked_by, post_id]
         );
 
         let status;
@@ -32,7 +31,7 @@ router.post("/", ensureAuthenticated,async (req, res) => {
 
     } catch (err) {
         console.error("Error handling like:", err);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json("Error");
     }
 });
 

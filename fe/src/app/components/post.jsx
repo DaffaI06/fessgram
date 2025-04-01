@@ -48,7 +48,7 @@ function Post(props) {
             <Link href={`/post/${post_id}`} className="w-full bg-black flex flex-col px-5 py-3 text-white border-x border-b border-gray-800">
                 <div className="w-full flex gap-5 items-start sm:items-center">
                     <div className="relative w-10 h-10 sm:w-12 sm:h-12 flex-shrink-0 mt-1 sm:mt-0">
-                        <Image src={avatar_url} className="rounded-full" alt="" fill/>
+                        <Image src={avatar_url} className="rounded-full" alt="" fill sizes="(max-width: 640px) 40px, 48px"/>
                     </div>
                     <div className="text-md sm:text-xl gap-2">
                         <div className="flex gap-3 items-baseline">

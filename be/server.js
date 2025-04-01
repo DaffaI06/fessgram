@@ -6,6 +6,7 @@ const passport = require("./passport");
 const authRoutes = require('./routes/auth');
 const postsRoutes = require('./routes/posts');
 const likesRoutes = require('./routes/likes');
+const communitiesRoutes = require('./routes/communities');
 
 
 const app = express();
@@ -15,6 +16,8 @@ app.use(cors({
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"]
 }));
+
+
 app.use(session({
         secret: process.env.SESSION_SECRET,
         resave: false,
@@ -25,15 +28,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-
 app.use("/auth", authRoutes);
 app.use("/posts", postsRoutes);
 app.use("/likes", likesRoutes);
-
-
-app.get("/", (req, res) => {
-    res.send("Hello World!");
-})
+app.use("/communities", communitiesRoutes);
 
 
 const port = process.env.PORT;

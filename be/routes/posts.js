@@ -35,7 +35,7 @@ router.put("/:post_id", ensureAuthenticated, async (req, res) => {
         res.json(updatedPost.rows[0]);
     } catch (error) {
         console.error("Error updating post:", error);
-        res.status(500).json({ error: "Internal Server Error" }); // Return JSON error response
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
@@ -55,7 +55,7 @@ router.delete("/:post_id", ensureAuthenticated, async (req, res) => {
         res.json({ message: "Post deleted successfully" });
     } catch (error) {
         console.error("Error deleting post:", error);
-        res.status(500).json({ error: "Internal Server Error" }); // Return JSON error response
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
@@ -83,7 +83,7 @@ router.get("/", async (req, res) => {
                 FROM posts
                 GROUP BY parent_id
             ) AS comment_temp ON posts.post_id = comment_temp.parent_id
-            WHERE posts.parent_id IS NULL -- remove if error
+            WHERE posts.parent_id IS NULL AND posts.community_id IS NULL -- remove if error
             ORDER BY created_at DESC 
             LIMIT 10 OFFSET $1`,
             [offset]

@@ -1,6 +1,6 @@
 # Fessgram
 Social media app (twitter clone)
-https://fessgram-fe.fly.dev/
+deploy removed, issues with auth
 <br/><br/>
 ## Built using
 next.js frontend 
